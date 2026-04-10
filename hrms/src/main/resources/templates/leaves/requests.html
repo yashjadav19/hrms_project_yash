@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Leave Requests')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{layout :: sidebar-admin}"></div>
+
+        <main class="col-md-10 ms-sm-auto content-area">
+            <h4 class="mb-4">Leave Requests</h4>
+
+            <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+                <span th:text="${successMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+                <span th:text="${errorMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(requests)}" class="text-center text-muted py-5">
+                        No leave requests found.
+                    </div>
+                    <div th:if="${!#lists.isEmpty(requests)}" class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Days</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="req : ${requests}">
+                                    <td th:text="${req.employee.fullName}">Name</td>
+                                    <td>
+                                        <span class="badge bg-primary" th:text="${req.leaveType}">Type</span>
+                                    </td>
+                                    <td th:text="${req.startDate}">-</td>
+                                    <td th:text="${req.endDate}">-</td>
+                                    <td th:text="${req.days}">0</td>
+                                    <td>
+                                        <span th:text="${#strings.abbreviate(req.reason, 40)}">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:class="${req.status == 'APPROVED'} ? 'badge badge-approved' :
+                                                        (${req.status == 'REJECTED'} ? 'badge badge-rejected' : 'badge badge-pending')"
+                                              th:text="${req.status}">STATUS</span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${req.status == 'PENDING'}" class="d-flex gap-1">
+                                            <form th:action="@{/leaves/approve/{id}(id=${req.id})}" method="post" class="d-inline">
+                                                <input type="hidden" name="adminComment" value="Approved by admin">
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Approve this request?')">
+                                                    <i class="bi bi-check"></i> Approve
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/leaves/reject/{id}(id=${req.id})}" method="post" class="d-inline">
+                                                <input type="hidden" name="adminComment" value="Rejected by admin">
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Reject this request?')">
+                                                    <i class="bi bi-x"></i> Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <span th:if="${req.status != 'PENDING'}" class="text-muted small"
+                                              th:text="${req.adminComment}">-</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
