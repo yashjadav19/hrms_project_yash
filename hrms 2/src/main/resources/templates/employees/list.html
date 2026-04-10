@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{layout :: head('Employees')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{layout :: sidebar-admin}"></div>
+
+        <main class="col-md-10 ms-sm-auto content-area">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Employees</h4>
+                <a href="/employees/add" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Add Employee
+                </a>
+            </div>
+
+            <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+                <span th:text="${successMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- search and filter bar -->
+            <div class="card mb-3">
+                <div class="card-body py-2">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                            <form method="get" class="d-flex gap-2">
+                                <input type="text" class="form-control" name="search"
+                                       placeholder="Search by name..." th:value="${search}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                                <a href="/employees" class="btn btn-outline-secondary">Clear</a>
+                            </form>
+                        </div>
+                        <div class="col-md-4">
+                            <form method="get" class="d-flex gap-2">
+                                <select class="form-select" name="department">
+                                    <option value="">All Departments</option>
+                                    <option value="Engineering" th:selected="${department == 'Engineering'}">Engineering</option>
+                                    <option value="Marketing" th:selected="${department == 'Marketing'}">Marketing</option>
+                                    <option value="HR" th:selected="${department == 'HR'}">HR</option>
+                                    <option value="Finance" th:selected="${department == 'Finance'}">Finance</option>
+                                    <option value="Operations" th:selected="${department == 'Operations'}">Operations</option>
+                                    <option value="Management" th:selected="${department == 'Management'}">Management</option>
+                                </select>
+                                <button type="submit" class="btn btn-outline-primary">Filter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(employees)}" class="text-center text-muted py-5">
+                        No employees found.
+                    </div>
+                    <div th:if="${!#lists.isEmpty(employees)}" class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Position</th>
+                                    <th>Salary</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="emp : ${employees}">
+                                    <td th:text="${emp.employeeId}">-</td>
+                                    <td th:text="${emp.fullName}">-</td>
+                                    <td th:text="${emp.email}">-</td>
+                                    <td th:text="${emp.department}">-</td>
+                                    <td th:text="${emp.position}">-</td>
+                                    <td th:text="${'$' + emp.salary}">-</td>
+                                    <td>
+                                        <span th:class="${emp.role == 'ADMIN'} ? 'badge bg-danger' : 'badge bg-secondary'"
+                                              th:text="${emp.role}">EMPLOYEE</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/employees/edit/{id}(id=${emp.id})}"
+                                           class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/employees/delete/{id}(id=${emp.id})}"
+                                              method="post" class="d-inline"
+                                              onsubmit="return confirm('Delete this employee?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
